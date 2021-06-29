@@ -1,7 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
-const { addPlaces, listPlaces } = require('./controllers/placesController')
+const { addPlaces, listPlaces, getSpecificPlace } = require('./controllers/placesController')
 
 const app = express()
 
@@ -17,7 +17,21 @@ mongoose.connect('mongodb://127.0.0.1:27017/places', {
 });
 
 app.get('/places', async(req, res) => {
-    let response = await listPlaces()
+    console.log(req.query)
+    let name = req.query.name || ''
+    let city = req.query.city || ''
+        // console.log('name: ' + name)
+        // console.log('city: ' + city)
+    let response = await listPlaces(name, city)
+    if (response.status) {
+        res.status(200).send(response.message)
+    } else {
+        res.status(400).send(response.message)
+    }
+})
+
+app.get('/places/:slug', async(req, res) => {
+    let response = await getSpecificPlace(req.params.slug)
     if (response.status) {
         res.status(200).send(response.message)
     } else {
